@@ -1,0 +1,621 @@
+{% extends "server_dashboard.html" %}
+
+{% block content %}
+<style>
+    .setup-section {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border: 2px solid #0f3460;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .setup-section h2 {
+        color: #fff;
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #0f3460;
+    }
+
+    .setup-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .config-item {
+        background: rgba(0, 212, 255, 0.05);
+        border: 2px solid #0f3460;
+        border-radius: 8px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .config-item:hover {
+        border-color: #00d4ff;
+    }
+
+    .config-label {
+        color: #00d4ff;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .config-value {
+        color: #fff;
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .config-value.empty {
+        color: #666;
+        font-style: italic;
+    }
+
+    .btn-set {
+        display: inline-block;
+        background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+        color: #000;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.8rem;
+        margin-right: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-set:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+    }
+
+    .btn-remove {
+        background: linear-gradient(135deg, #8b0000 0%, #660000 100%);
+        color: #fff;
+    }
+
+    .btn-remove:hover {
+        background: linear-gradient(135deg, #bb0000 0%, #990000 100%);
+    }
+
+    .info-box {
+        background: rgba(0, 212, 255, 0.1);
+        border-left: 4px solid #00d4ff;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 2rem;
+        color: #aaa;
+    }
+
+    .select-dropdown {
+        width: 100%;
+        padding: 0.75rem;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border: 2px solid #0f3460;
+        color: #fff;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .select-dropdown:hover {
+        border-color: #00d4ff;
+    }
+
+    .select-dropdown:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+    }
+
+    .select-dropdown option {
+        background: #1a1a2e;
+        color: #fff;
+        padding: 0.5rem;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border: 2px solid #0f3460;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        color: #fff;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .modal-description {
+        color: #aaa;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: flex-end;
+    }
+
+    .btn-primary, .btn-secondary {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+        color: #000;
+    }
+
+    .btn-secondary {
+        background: #666;
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+    }
+
+    .btn-secondary:hover {
+        background: #777;
+    }
+
+    .loading {
+        color: #aaa;
+        text-align: center;
+        padding: 1rem;
+        font-style: italic;
+    }
+
+    .error-msg {
+        color: #ff4757;
+        background: rgba(255, 71, 87, 0.1);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border-left: 4px solid #ff4757;
+    }
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .channel-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #00d4ff;
+        font-weight: 600;
+    }
+</style>
+
+<h1 class="page-title">⚙️ Server Setup</h1>
+
+<div class="info-box">
+    💡 Configure your server settings here using the dropdown selectors. All changes are automatically saved to the database and sync with the /setup command.
+</div>
+        color: #000;
+    }
+
+    .btn-secondary {
+        background: #666;
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        transform: scale(1.05);
+    }
+
+    .btn-secondary:hover {
+        background: #777;
+    }
+</style>
+
+<h1 class="page-title">⚙️ Server Setup</h1>
+
+<div class="info-box">
+    💡 Configure your server settings here. All changes are automatically saved to the database and sync with the /setup command.
+</div>
+
+<!-- Channels Section -->
+<div class="setup-section">
+    <h2>📌 Channels Configuration</h2>
+    <div class="setup-grid">
+        <div class="config-item">
+            <div class="config-label">Transactions Channel</div>
+            <div class="config-value {% if not guild_config.transactions %}empty{% endif %}" id="transactions-display">
+                {% if guild_config.transactions %}
+                    <span class="channel-badge">#{{ guild_config.transactions }}</span>
+                {% else %}
+                    Not Set
+                {% endif %}
+            </div>
+            <button class="btn-set" onclick="openModal('transactions', 'channel')">Set Channel</button>
+            {% if guild_config.transactions %}
+            <button class="btn-set btn-remove" onclick="removeConfig('transactions')">Remove</button>
+            {% endif %}
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">Verification Channel</div>
+            <div class="config-value {% if not guild_config.verification_channel %}empty{% endif %}" id="verification_channel-display">
+                {% if guild_config.verification_channel %}
+                    <span class="channel-badge">#{{ guild_config.verification_channel }}</span>
+                {% else %}
+                    Not Set
+                {% endif %}
+            </div>
+            <button class="btn-set" onclick="openModal('verification_channel', 'channel')">Set Channel</button>
+            {% if guild_config.verification_channel %}
+            <button class="btn-set btn-remove" onclick="removeConfig('verification_channel')">Remove</button>
+            {% endif %}
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">Release Channel</div>
+            <div class="config-value {% if not guild_config.release_channel %}empty{% endif %}" id="release_channel-display">
+                {% if guild_config.release_channel %}
+                    <span class="channel-badge">#{{ guild_config.release_channel }}</span>
+                {% else %}
+                    Not Set
+                {% endif %}
+            </div>
+            <button class="btn-set" onclick="openModal('release_channel', 'channel')">Set Channel</button>
+            {% if guild_config.release_channel %}
+            <button class="btn-set btn-remove" onclick="removeConfig('release_channel')">Remove</button>
+            {% endif %}
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">Transfer Channel</div>
+            <div class="config-value {% if not guild_config.transfer_channel %}empty{% endif %}" id="transfer_channel-display">
+                {% if guild_config.transfer_channel %}
+                    <span class="channel-badge">#{{ guild_config.transfer_channel }}</span>
+                {% else %}
+                    Not Set
+                {% endif %}
+            </div>
+            <button class="btn-set" onclick="openModal('transfer_channel', 'channel')">Set Channel</button>
+            {% if guild_config.transfer_channel %}
+            <button class="btn-set btn-remove" onclick="removeConfig('transfer_channel')">Remove</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Roles Section -->
+<div class="setup-section">
+    <h2>👥 Roles Configuration</h2>
+    <div class="setup-grid">
+        <div class="config-item">
+            <div class="config-label">Free Agent Role</div>
+            <div class="config-value {% if not guild_config.free_agent %}empty{% endif %}" id="free_agent-display">
+                {% if guild_config.free_agent %}
+                    <span class="role-badge">@{{ guild_config.free_agent }}</span>
+                {% else %}
+                    Not Set
+                {% endif %}
+            </div>
+            <button class="btn-set" onclick="openModal('free_agent', 'role')">Set Role</button>
+            {% if guild_config.free_agent %}
+            <button class="btn-set btn-remove" onclick="removeConfig('free_agent')">Remove</button>
+            {% endif %}
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">Franchise Owner Role</div>
+            <div class="config-value {% if not guild_config.franchise_owner %}empty{% endif %}" id="franchise_owner-display">
+                {% if guild_config.franchise_owner %}
+                    <span class="role-badge">@{{ guild_config.franchise_owner }}</span>
+                {% else %}
+                    Not Set
+                {% endif %}
+            </div>
+            <button class="btn-set" onclick="openModal('franchise_owner', 'role')">Set Role</button>
+            {% if guild_config.franchise_owner %}
+            <button class="btn-set btn-remove" onclick="removeConfig('franchise_owner')">Remove</button>
+            {% endif %}
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">General Manager Role</div>
+            <div class="config-value {% if not guild_config.general_manager %}empty{% endif %}" id="general_manager-display">
+                {% if guild_config.general_manager %}
+                    <span class="role-badge">@{{ guild_config.general_manager }}</span>
+                {% else %}
+                    Not Set
+                {% endif %}
+            </div>
+            <button class="btn-set" onclick="openModal('general_manager', 'role')">Set Role</button>
+            {% if guild_config.general_manager %}
+            <button class="btn-set btn-remove" onclick="removeConfig('general_manager')">Remove</button>
+            {% endif %}
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">Head Coach Role</div>
+            <div class="config-value {% if not guild_config.head_coach %}empty{% endif %}" id="head_coach-display">
+                {% if guild_config.head_coach %}
+                    <span class="role-badge">@{{ guild_config.head_coach }}</span>
+                {% else %}
+                    Not Set
+                {% endif %}
+            </div>
+            <button class="btn-set" onclick="openModal('head_coach', 'role')">Set Role</button>
+            {% if guild_config.head_coach %}
+            <button class="btn-set btn-remove" onclick="removeConfig('head_coach')">Remove</button>
+            {% endif %}
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">Verified Role</div>
+            <div class="config-value {% if not guild_config.verified %}empty{% endif %}" id="verified-display">
+                {% if guild_config.verified %}
+                    <span class="role-badge">@{{ guild_config.verified }}</span>
+                {% else %}
+                    Not Set
+                {% endif %}
+            </div>
+            <button class="btn-set" onclick="openModal('verified', 'role')">Set Role</button>
+            {% if guild_config.verified %}
+            <button class="btn-set btn-remove" onclick="removeConfig('verified')">Remove</button>
+            {% endif %}
+        </div>
+
+        <div class="config-item">
+            <div class="config-label">Admin Role</div>
+            <div class="config-value {% if not guild_config.admin %}empty{% endif %}" id="admin-display">
+                {% if guild_config.admin %}
+                    <span class="role-badge">@{{ guild_config.admin }}</span>
+                {% else %}
+                    Not Set
+                {% endif %}
+            </div>
+            <button class="btn-set" onclick="openModal('admin', 'role')">Set Role</button>
+            {% if guild_config.admin %}
+            <button class="btn-set btn-remove" onclick="removeConfig('admin')">Remove</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal for setting channels/roles -->
+<div id="setupModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header" id="modalTitle">Configure Setting</div>
+        <div class="modal-description" id="modalDescription">Select an option from the dropdown below</div>
+        <div id="modalBody">
+            <div class="loading">Loading...</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+            <button class="btn-primary" onclick="saveConfig()">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentConfigKey = null;
+    let currentConfigType = null;
+    let rolesCache = null;
+    let channelsCache = null;
+
+    async function fetchRoles() {
+        if (rolesCache) return rolesCache;
+
+        try {
+            const response = await fetch(`/api/server/{{ guild_id }}/roles`);
+            const data = await response.json();
+            if (data.success) {
+                rolesCache = data.roles;
+                return data.roles;
+            }
+            throw new Error('Failed to fetch roles');
+        } catch (error) {
+            console.error('Error fetching roles:', error);
+            return [];
+        }
+    }
+
+    async function fetchChannels() {
+        if (channelsCache) return channelsCache;
+
+        try {
+            const response = await fetch(`/api/server/{{ guild_id }}/channels`);
+            const data = await response.json();
+            if (data.success) {
+                channelsCache = data.channels;
+                return data.channels;
+            }
+            throw new Error('Failed to fetch channels');
+        } catch (error) {
+            console.error('Error fetching channels:', error);
+            return [];
+        }
+    }
+
+    async function openModal(configKey, type) {
+        currentConfigKey = configKey;
+        currentConfigType = type;
+
+        const modal = document.getElementById('setupModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+        const modalBody = document.getElementById('modalBody');
+
+        // Update modal title
+        const label = document.querySelector(`#${configKey}-display`).closest('.config-item').querySelector('.config-label').textContent;
+        modalTitle.textContent = `Set ${label}`;
+
+        if (type === 'role') {
+            modalDescription.textContent = 'Select a role from your server';
+            modalBody.innerHTML = '<div class="loading">Loading roles...</div>';
+            modal.classList.add('show');
+
+            const roles = await fetchRoles();
+            if (roles.length === 0) {
+                modalBody.innerHTML = '<div class="error-msg">Failed to load roles. Make sure the bot is in your server.</div>';
+                return;
+            }
+
+            let selectHtml = '<select class="select-dropdown" id="configSelect">';
+            selectHtml += '<option value="">-- Select a Role --</option>';
+            roles.forEach(role => {
+                if (role.name !== '@everyone') {
+                    const color = role.color ? `#${role.color.toString(16).padStart(6, '0')}` : '#99AAB5';
+                    selectHtml += `<option value="${role.name}" data-id="${role.id}" style="color: ${color}">${role.name}</option>`;
+                }
+            });
+            selectHtml += '</select>';
+            modalBody.innerHTML = selectHtml;
+
+        } else if (type === 'channel') {
+            modalDescription.textContent = 'Select a channel from your server';
+            modalBody.innerHTML = '<div class="loading">Loading channels...</div>';
+            modal.classList.add('show');
+
+            const channels = await fetchChannels();
+            if (channels.length === 0) {
+                modalBody.innerHTML = '<div class="error-msg">Failed to load channels. Make sure the bot is in your server.</div>';
+                return;
+            }
+
+            let selectHtml = '<select class="select-dropdown" id="configSelect">';
+            selectHtml += '<option value="">-- Select a Channel --</option>';
+            channels.forEach(channel => {
+                selectHtml += `<option value="${channel.name}" data-id="${channel.id}"># ${channel.name}</option>`;
+            });
+            selectHtml += '</select>';
+            modalBody.innerHTML = selectHtml;
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('setupModal').classList.remove('show');
+        currentConfigKey = null;
+        currentConfigType = null;
+    }
+
+    async function saveConfig() {
+        const select = document.getElementById('configSelect');
+        if (!select || !select.value) {
+            alert('Please select an option');
+            return;
+        }
+
+        const value = select.value;
+        const selectedOption = select.options[select.selectedIndex];
+        const id = selectedOption.getAttribute('data-id');
+
+        // Save to database
+        try {
+            const response = await fetch(`/api/server/{{ guild_id }}/config`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    [currentConfigKey]: value,
+                    [`${currentConfigKey}_id`]: id
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                // Update the display
+                const display = document.getElementById(`${currentConfigKey}-display`);
+                if (currentConfigType === 'role') {
+                    display.innerHTML = `<span class="role-badge">@${value}</span>`;
+                } else {
+                    display.innerHTML = `<span class="channel-badge">#${value}</span>`;
+                }
+                display.classList.remove('empty');
+
+                closeModal();
+
+                // Reload to update buttons
+                setTimeout(() => location.reload(), 500);
+            } else {
+                alert('Error saving configuration');
+            }
+        } catch (error) {
+            console.error('Error saving config:', error);
+            alert('Error saving configuration');
+        }
+    }
+
+    async function removeConfig(configKey) {
+        if (confirm('Are you sure you want to remove this configuration?')) {
+            try {
+                const response = await fetch(`/api/server/{{ guild_id }}/config`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        [configKey]: null,
+                        [`${configKey}_id`]: null
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Error removing config:', error);
+                alert('Error removing configuration');
+            }
+        }
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('setupModal').addEventListener('click', (e) => {
+        if (e.target.id === 'setupModal') {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}

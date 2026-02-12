@@ -1,0 +1,372 @@
+{% extends "server_dashboard.html" %}
+
+{% block content %}
+<style>
+    .servers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .server-card {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border: 2px solid #0f3460;
+        border-radius: 12px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .server-card:hover {
+        border-color: #00d4ff;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        transform: translateY(-5px);
+    }
+
+    .server-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #00d4ff 0%, #0099cc 100%);
+    }
+
+    .server-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #1a1a2e;
+        font-weight: bold;
+    }
+
+    .server-name {
+        color: #fff;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .server-status {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #00ff00;
+        margin-right: 0.5rem;
+    }
+
+    .premium-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+        color: #000;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-left: auto;
+    }
+
+    .server-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid #0f3460;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+    }
+
+    .stat-value {
+        color: #00d4ff;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+
+    .server-info {
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        color: #aaa;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: #666;
+    }
+
+    .info-value {
+        color: #fff;
+        font-weight: 500;
+    }
+
+    .server-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-view {
+        flex: 1;
+        background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+        color: #000;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-view:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+    }
+
+    .btn-invite {
+        flex: 1;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-invite:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+    }
+
+    .filter-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #00d4ff;
+        border: 2px solid #0f3460;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+
+    .filter-btn.active {
+        background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+        color: #000;
+        border-color: #00d4ff;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #666;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .search-bar {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto 2rem;
+        display: block;
+        padding: 0.75rem 1rem;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border: 2px solid #0f3460;
+        color: #fff;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+    .search-bar::placeholder {
+        color: #666;
+    }
+
+    .search-bar:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+    }
+</style>
+
+<h1 class="page-title">🖥️ All Servers</h1>
+
+<!-- Search and Filter -->
+<input type="text" class="search-bar" id="serverSearch" placeholder="Search servers...">
+
+<div class="filter-bar">
+    <button class="filter-btn active" onclick="filterServers('all')">All Servers</button>
+    <button class="filter-btn" onclick="filterServers('premium')">⭐ Premium Only</button>
+    <button class="filter-btn" onclick="filterServers('admin')">👑 You're Admin</button>
+</div>
+
+<div class="servers-grid" id="serversGrid">
+    {% if servers %}
+        {% for server in servers %}
+        <div class="server-card" data-filter="{% if server.is_premium %}premium{% endif %} {% if server.is_admin %}admin{% endif %}">
+            <div style="display: flex; align-items: flex-start; margin-bottom: 1rem;">
+                <div class="server-icon">
+                    {{ server.name[0:1].upper() }}
+                </div>
+                <div style="flex: 1; margin-left: 1rem;">
+                    <div class="server-name">
+                        <span class="server-status"></span>
+                        {{ server.name }}
+                    </div>
+                    {% if server.is_premium %}
+                    <span class="premium-badge">⭐ Premium</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="server-stats">
+                <div class="stat-item">
+                    <div class="stat-label">Members</div>
+                    <div class="stat-value">{{ server.member_count }}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Teams</div>
+                    <div class="stat-value">{{ server.team_count or 0 }}</div>
+                </div>
+            </div>
+
+            <div class="server-info">
+                <div class="info-row">
+                    <span class="info-label">Owner:</span>
+                    <span class="info-value">{{ server.owner }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">ID:</span>
+                    <span class="info-value" style="font-family: monospace; font-size: 0.85rem;">{{ server.id }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Created:</span>
+                    <span class="info-value">{{ server.created_at }}</span>
+                </div>
+            </div>
+
+            <div class="server-actions">
+                {% if server.is_admin %}
+                <a href="/server/{{ server.id }}" class="btn-view">⚙️ Manage</a>
+                {% else %}
+                <button class="btn-view" onclick="alert('You must be an admin in this server to manage it.')">View Only</button>
+                {% endif %}
+                <a href="https://discord.gg/{{ server.invite_code or 'Clover' }}" target="_blank" class="btn-invite">📨 Invite</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty-state" style="grid-column: 1 / -1;">
+        <div class="empty-icon">🌐</div>
+        <h2>No Servers Found</h2>
+        <p>You're not connected to any servers with Clover League Utilities yet.</p>
+        <a href="https://discord.gg/Clover" style="color: #00d4ff; text-decoration: none; margin-top: 1rem; display: inline-block;">Add Clover League Utilities to Your Server →</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    let currentFilter = 'all';
+
+    function filterServers(filter) {
+        currentFilter = filter;
+        const cards = document.querySelectorAll('.server-card');
+
+        // Update button states
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        // Filter cards
+        cards.forEach(card => {
+            let show = false;
+
+            if (filter === 'all') {
+                show = true;
+            } else if (filter === 'premium' && card.dataset.filter.includes('premium')) {
+                show = true;
+            } else if (filter === 'admin' && card.dataset.filter.includes('admin')) {
+                show = true;
+            }
+
+            card.style.display = show ? 'block' : 'none';
+        });
+
+        // Search after filter
+        filterAndSearch();
+    }
+
+    function filterAndSearch() {
+        const searchTerm = document.getElementById('serverSearch').value.toLowerCase();
+        const cards = document.querySelectorAll('.server-card');
+
+        cards.forEach(card => {
+            const name = card.querySelector('.server-name').textContent.toLowerCase();
+            const id = card.querySelector('span[style*="monospace"]').textContent.toLowerCase();
+
+            const matches = name.includes(searchTerm) || id.includes(searchTerm);
+            const isShown = card.style.display !== 'none';
+
+            card.style.display = (matches && isShown) ? 'block' : 'none';
+        });
+    }
+
+    document.getElementById('serverSearch').addEventListener('input', filterAndSearch);
+</script>
+{% endblock %}
