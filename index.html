@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clover League Utilities</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">Clover League Utilities</a>
+            <div class="nav-links">
+                <a href="/" class="active">Home</a>
+                <a href="/commands">Commands</a>
+                <a href="/dashboard">Dashboard</a>
+                {% if user %}
+                <a href="/servers">My Servers</a>
+                <div class="user-info">
+                    {% if user.avatar %}
+                    <img src="https://cdn.discordapp.com/avatars/{{ user.id }}/{{ user.avatar }}.png" alt="Avatar" class="user-avatar">
+                    {% endif %}
+                    <span>{{ user.global_name or user.username }}</span>
+                    <a href="/logout" class="logout-btn">Logout</a>
+                </div>
+                {% else %}
+                <a href="/login" class="login-btn">Login with Discord</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Clover League Utilities</h1>
+            <p>The ultimate Discord bot for managing esports and fantasy sports leagues</p>
+            <div class="hero-buttons">
+                <a href="/commands" class="btn btn-primary">View Commands</a>
+                <a href="https://discord.gg/4p6hf8tY" class="btn btn-secondary" target="_blank">Support Server</a>
+                {% if invite_url %}
+                <a href="{{ invite_url }}" class="btn btn-primary" target="_blank">Invite Bot</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <section class="stats-section">
+        <div class="container">
+            <h2>Bot Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.guilds }}</div>
+                    <div class="stat-label">Servers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.applications }}</div>
+                    <div class="stat-label">Applications Processed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">98+</div>
+                    <div class="stat-label">Slash Commands</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">24</div>
+                    <div class="stat-label">Feature Modules</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <div class="container">
+            <h2>Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">&#9917;</div>
+                    <h3>Team Management</h3>
+                    <p>Create and manage teams, rosters, and player transactions with ease.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#128197;</div>
+                    <h3>Scheduling</h3>
+                    <p>Automated game scheduling and match reporting system.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#128202;</div>
+                    <h3>Statistics</h3>
+                    <p>Track player and team stats across multiple sports.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#128274;</div>
+                    <h3>Raid Security</h3>
+                    <p>Advanced protection against raids and spam attacks.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#127919;</div>
+                    <h3>Tickets & Apps</h3>
+                    <p>Complete ticketing and application management system.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#9989;</div>
+                    <h3>Verification</h3>
+                    <p>Roblox account verification with captcha support.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#128176;</div>
+                    <h3>Budget System</h3>
+                    <p>Manage team budgets, contracts, and transactions.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#127942;</div>
+                    <h3>Draft System</h3>
+                    <p>Complete draft management with pick tracking.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to level up your league?</h2>
+            <p>Join the servers already using Clover League Utilities</p>
+            <a href="/commands" class="btn btn-primary">Explore Commands</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Clover League Utilities. All rights reserved.</p>
+            <p><a href="https://discord.gg/4p6hf8tY">Support Server</a></p>
+        </div>
+    </footer>
+</body>
+</html>

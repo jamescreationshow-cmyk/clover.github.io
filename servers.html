@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Server - Clover League Utilities</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">Clover League Utilities</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/commands">Commands</a>
+                <a href="/dashboard">Dashboard</a>
+                {% if user %}
+                <a href="/servers" class="active">My Servers</a>
+                <div class="user-info">
+                    {% if user.avatar %}
+                    <img src="https://cdn.discordapp.com/avatars/{{ user.id }}/{{ user.avatar }}.png" alt="Avatar" class="user-avatar">
+                    {% endif %}
+                    <span>{{ user.global_name or user.username }}</span>
+                    <a href="/logout" class="logout-btn">Logout</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>Select a Server</h1>
+            <p class="subtitle">Choose a server to configure. You must be an owner or administrator.</p>
+        </div>
+
+        <div class="servers-grid">
+            {% if guilds %}
+                {% for guild in guilds %}
+                <div class="server-card">
+                    <div class="server-icon">
+                        {% if guild.icon %}
+                        <img src="https://cdn.discordapp.com/icons/{{ guild.id }}/{{ guild.icon }}.png" alt="{{ guild.name }}">
+                        {% else %}
+                        <div class="server-icon-placeholder">{{ guild.name[:2].upper() }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="server-info">
+                        <h3>{{ guild.name }}</h3>
+                        <div class="server-meta">
+                            {% if guild.owner %}
+                            <span class="badge badge-owner">Owner</span>
+                            {% else %}
+                            <span class="badge badge-admin">Admin</span>
+                            {% endif %}
+                            {% if guild.configured %}
+                            <span class="badge badge-configured">Configured</span>
+                            {% endif %}
+                        </div>
+                        {% if guild.teams_count > 0 %}
+                        <p class="teams-count">{{ guild.teams_count }} team(s)</p>
+                        {% endif %}
+                    </div>
+                    <a href="/configure/{{ guild.id }}" class="btn btn-primary">Configure</a>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="no-servers">
+                <h3>No Manageable Servers</h3>
+                <p>You don't have owner or administrator permissions in any servers where the bot can be configured.</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Clover League Utilities - Managing esports leagues with ease</p>
+    </footer>
+</body>
+</html>

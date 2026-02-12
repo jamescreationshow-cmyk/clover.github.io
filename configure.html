@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure {{ guild.name }} - Clover League Utilities</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">Clover League Utilities</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/commands">Commands</a>
+                <a href="/servers">My Servers</a>
+                {% if user %}
+                <div class="user-info">
+                    {% if user.avatar %}
+                    <img src="https://cdn.discordapp.com/avatars/{{ user.id }}/{{ user.avatar }}.png" alt="Avatar" class="user-avatar">
+                    {% endif %}
+                    <span>{{ user.global_name or user.username }}</span>
+                    <a href="/logout" class="logout-btn">Logout</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container configure-page">
+        <div class="page-header flex">
+            <div class="server-header">
+                {% if guild.icon %}
+                <img src="https://cdn.discordapp.com/icons/{{ guild.id }}/{{ guild.icon }}.png" alt="{{ guild.name }}" class="server-header-icon">
+                {% else %}
+                <div class="server-icon-placeholder large">{{ guild.name[:2].upper() }}</div>
+                {% endif %}
+                <div>
+                    <h1>{{ guild.name }}</h1>
+                    <p class="subtitle">Configure bot settings for this server</p>
+                </div>
+            </div>
+            <a href="/servers" class="btn btn-secondary">Back to Servers</a>
+        </div>
+
+        <div class="config-layout">
+            <aside class="config-sidebar">
+                <h3>Configuration Pages</h3>
+                <nav class="config-nav">
+                    {% for page in setup_pages %}
+                    <button class="config-nav-item {% if loop.first %}active{% endif %}" data-page="{{ page.id }}">
+                        {{ page.name }}
+                    </button>
+                    {% endfor %}
+                </nav>
+            </aside>
+
+            <div class="config-content">
+                {% for page in setup_pages %}
+                <section class="config-page {% if loop.first %}active{% endif %}" id="page-{{ page.id }}">
+                    <div class="config-page-header">
+                        <h2>{{ page.name }}</h2>
+                        <p>{{ page.description }}</p>
+                    </div>
+
+                    <form class="config-form" data-page="{{ page.id }}">
+                        {% for field in page.fields %}
+                        <div class="form-group">
+                            <label for="{{ field.key }}">{{ field.label }}</label>
+
+                            {% if field.type == 'role' %}
+                            <input type="text" 
+                                   id="{{ field.key }}" 
+                                   name="{{ field.key }}" 
+                                   class="form-control"
+                                   placeholder="Enter Role ID"
+                                   value="{{ config.get(field.key, '') }}">
+                            <small class="form-hint">Enter the Discord Role ID. Right-click a role in Discord (with Developer Mode enabled) to copy the ID.</small>
+
+                            {% elif field.type == 'channel' %}
+                            <input type="text" 
+                                   id="{{ field.key }}" 
+                                   name="{{ field.key }}" 
+                                   class="form-control"
+                                   placeholder="Enter Channel ID"
+                                   value="{{ config.get(field.key, '') }}">
+                            <small class="form-hint">Enter the Discord Channel ID. Right-click a channel in Discord (with Developer Mode enabled) to copy the ID.</small>
+
+                            {% elif field.type == 'number' %}
+                            <input type="number" 
+                                   id="{{ field.key }}" 
+                                   name="{{ field.key }}" 
+                                   class="form-control"
+                                   placeholder="Enter a number"
+                                   value="{{ config.get(field.key, '') }}">
+
+                            {% elif field.type == 'toggle' %}
+                            <div class="toggle-group">
+                                {% for option in field.options %}
+                                <label class="toggle-option">
+                                    <input type="radio" 
+                                           name="{{ field.key }}" 
+                                           value="{{ option }}"
+                                           {% if config.get(field.key) == option %}checked{% endif %}>
+                                    <span>{{ option }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+
+                            {% elif field.type == 'select' %}
+                            <select id="{{ field.key }}" name="{{ field.key }}" class="form-control">
+                                {% for option in field.options %}
+                                <option value="{{ option }}" {% if config.get(field.key) == option %}selected{% endif %}>{{ option }}</option>
+                                {% endfor %}
+                            </select>
+
+                            {% else %}
+                            <input type="text" 
+                                   id="{{ field.key }}" 
+                                   name="{{ field.key }}" 
+                                   class="form-control"
+                                   value="{{ config.get(field.key, '') }}">
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </form>
+                </section>
+                {% endfor %}
+
+                <div class="config-actions">
+                    <button id="saveConfig" class="btn btn-primary btn-large">Save Configuration</button>
+                    <span id="saveStatus" class="save-status"></span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Clover League Utilities - Managing esports leagues with ease</p>
+    </footer>
+
+    <script>
+        const guildId = '{{ guild.id }}';
+
+        document.querySelectorAll('.config-nav-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.config-nav-item').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.config-page').forEach(p => p.classList.remove('active'));
+
+                btn.classList.add('active');
+                const pageId = btn.dataset.page;
+                document.getElementById(`page-${pageId}`).classList.add('active');
+            });
+        });
+
+        document.getElementById('saveConfig').addEventListener('click', async () => {
+            const saveBtn = document.getElementById('saveConfig');
+            const saveStatus = document.getElementById('saveStatus');
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            const configData = {};
+
+            document.querySelectorAll('.config-form').forEach(form => {
+                const formData = new FormData(form);
+                for (const [key, value] of formData.entries()) {
+                    if (value.trim() !== '') {
+                        configData[key] = value;
+                    }
+                }
+            });
+
+            try {
+                const response = await fetch(`/api/guild/${guildId}/config`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(configData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    saveStatus.textContent = 'Saved successfully!';
+                    saveStatus.className = 'save-status success';
+                } else {
+                    saveStatus.textContent = 'Error: ' + (result.error || 'Failed to save');
+                    saveStatus.className = 'save-status error';
+                }
+            } catch (error) {
+                saveStatus.textContent = 'Error: ' + error.message;
+                saveStatus.className = 'save-status error';
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Configuration';
+
+                setTimeout(() => {
+                    saveStatus.textContent = '';
+                    saveStatus.className = 'save-status';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
