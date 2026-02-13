@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commands - Clover League Utilities</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Clover League Utilities</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="commands.html" class="active">Commands</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="servers.html">My Servers</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Bot Commands</h1>
+            <p>Complete list of all available slash commands</p>
+        </div>
+    </header>
+
+    <section class="commands-section">
+        <div class="container">
+            <div class="search-box">
+                <input type="text" id="commandSearch" placeholder="Search commands..." onkeyup="filterCommands()">
+            </div>
+
+            <div class="commands-container">
+                <div class="command-category">
+                    <h2 class="category-title">Team Management</h2>
+                    <div class="command-list">
+                        <div class="command-card">
+                            <div class="command-name">/team create</div>
+                            <div class="command-description">Create a new team in your league</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/team create name:[team name]</code>
+                            </div>
+                        </div>
+                        <div class="command-card">
+                            <div class="command-name">/team list</div>
+                            <div class="command-description">List all teams in the league</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/team list</code>
+                            </div>
+                        </div>
+                        <div class="command-card">
+                            <div class="command-name">/team roster</div>
+                            <div class="command-description">View a team's roster</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/team roster team:[team name]</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-category">
+                    <h2 class="category-title">Player Management</h2>
+                    <div class="command-list">
+                        <div class="command-card">
+                            <div class="command-name">/player add</div>
+                            <div class="command-description">Add a player to a team</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/player add team:[team] player:[username]</code>
+                            </div>
+                        </div>
+                        <div class="command-card">
+                            <div class="command-name">/player remove</div>
+                            <div class="command-description">Remove a player from a team</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/player remove team:[team] player:[username]</code>
+                            </div>
+                        </div>
+                        <div class="command-card">
+                            <div class="command-name">/player stats</div>
+                            <div class="command-description">View player statistics</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/player stats player:[username]</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-category">
+                    <h2 class="category-title">Scheduling</h2>
+                    <div class="command-list">
+                        <div class="command-card">
+                            <div class="command-name">/schedule create</div>
+                            <div class="command-description">Schedule a new match</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/schedule create team1:[team] team2:[team] time:[datetime]</code>
+                            </div>
+                        </div>
+                        <div class="command-card">
+                            <div class="command-name">/schedule list</div>
+                            <div class="command-description">View upcoming matches</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/schedule list</code>
+                            </div>
+                        </div>
+                        <div class="command-card">
+                            <div class="command-name">/schedule report</div>
+                            <div class="command-description">Report match results</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/schedule report match:[id] score:[result]</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-category">
+                    <h2 class="category-title">Applications & Tickets</h2>
+                    <div class="command-list">
+                        <div class="command-card">
+                            <div class="command-name">/application setup</div>
+                            <div class="command-description">Configure application system</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/application setup</code>
+                            </div>
+                        </div>
+                        <div class="command-card">
+                            <div class="command-name">/ticket create</div>
+                            <div class="command-description">Create a support ticket</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/ticket create subject:[subject]</code>
+                            </div>
+                        </div>
+                        <div class="command-card">
+                            <div class="command-name">/ticket close</div>
+                            <div class="command-description">Close a ticket</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/ticket close</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-category">
+                    <h2 class="category-title">Verification</h2>
+                    <div class="command-list">
+                        <div class="command-card">
+                            <div class="command-name">/verify</div>
+                            <div class="command-description">Verify your Roblox account</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/verify username:[roblox_username]</code>
+                            </div>
+                        </div>
+                        <div class="command-card">
+                            <div class="command-name">/verify setup</div>
+                            <div class="command-description">Configure verification system</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/verify setup</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-category">
+                    <h2 class="category-title">Budget & Transactions</h2>
+                    <div class="command-list">
+                        <div class="command-card">
+                            <div class="command-name">/budget view</div>
+                            <div class="command-description">View team budget</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/budget view team:[team]</code>
+                            </div>
+                        </div>
+                        <div class="command-card">
+                            <div class="command-name">/transaction record</div>
+                            <div class="command-description">Record a transaction</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/transaction record type:[type] amount:[amount]</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-category">
+                    <h2 class="category-title">Draft System</h2>
+                    <div class="command-list">
+                        <div class="command-card">
+                            <div class="command-name">/draft start</div>
+                            <div class="command-description">Start a draft</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/draft start rounds:[number]</code>
+                            </div>
+                        </div>
+                        <div class="command-card">
+                            <div class="command-name">/draft pick</div>
+                            <div class="command-description">Make a draft pick</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/draft pick player:[username]</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command-category">
+                    <h2 class="category-title">Security</h2>
+                    <div class="command-list">
+                        <div class="command-card">
+                            <div class="command-name">/security raid_mode</div>
+                            <div class="command-description">Toggle raid protection mode</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/security raid_mode enable:[true/false]</code>
+                            </div>
+                        </div>
+                        <div class="command-card">
+                            <div class="command-name">/security config</div>
+                            <div class="command-description">Configure security settings</div>
+                            <div class="command-usage">
+                                <span class="usage-label">Usage:</span>
+                                <code>/security config</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Clover League Utilities. All rights reserved.</p>
+            <p><a href="https://discord.gg/4p6hf8tY">Support Server</a></p>
+        </div>
+    </footer>
+
+    <script>
+        function filterCommands() {
+            const searchTerm = document.getElementById('commandSearch').value.toLowerCase();
+            const commandCards = document.querySelectorAll('.command-card');
+            const categories = document.querySelectorAll('.command-category');
+
+            commandCards.forEach(card => {
+                const name = card.querySelector('.command-name').textContent.toLowerCase();
+                const description = card.querySelector('.command-description').textContent.toLowerCase();
+
+                if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            categories.forEach(category => {
+                const visibleCards = category.querySelectorAll('.command-card[style="display: block"], .command-card:not([style*="display"])');
+                let hasVisible = false;
+                category.querySelectorAll('.command-card').forEach(card => {
+                    if (card.style.display !== 'none') hasVisible = true;
+                });
+                category.style.display = hasVisible ? 'block' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
